@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour {
 	// public CharacterController _characterController;
 
 	#region 정보
-	[Tooltip("캐릭터 기본 이동 속도")] [SerializeField] [Range(0f, 10f)]
+	[Tooltip("캐릭터 기본 이동 속도")] [SerializeField] [Range(0f, 5f)]
 	private float _basicMoveSpeed = 10f;
 	// 캐릭터 이동 속도
 	private float _moveSpeed = 10f;
@@ -30,6 +30,9 @@ public class PlayerController : MonoBehaviour {
 
 	// 앉기 키
 	private KeyCode _crouchKey = KeyCode.LeftControl;
+
+	// 마우스
+	private Vector3 _mousePos;
 	#endregion
 
 	#region 상태
@@ -49,21 +52,16 @@ public class PlayerController : MonoBehaviour {
 		// _characterController = gameObject.GetComponent<CharacterController>();
 	}
 
-	// Use this for initialization
-	void Start ()
-    {
-		
-	}
-
 	private void FixedUpdate()
 	{
-		MovePosition();
+		RotateCharacter();
 	}
 
 	// Update is called once per frame
 	void Update ()
     {
 		InputKey();
+		_mousePos = Input.mousePosition;
 	}
 
 	// 키 입력
@@ -87,10 +85,11 @@ public class PlayerController : MonoBehaviour {
 			_anim.SetBool("_Run", _runState);
 		}
 
-		if (_runState) _moveSpeed = _basicMoveSpeed * 2;
-		else _moveSpeed = _basicMoveSpeed;
+		// if (_runState) _moveSpeed = _basicMoveSpeed * 2;
+		// else _moveSpeed = _basicMoveSpeed;
 
-		_anim.SetFloat("_Speed", Mathf.Abs(_keyVertical));
+		_anim.SetFloat("_SpeedVertical", _keyVertical);
+		_anim.SetFloat("_SpeedHorizontal", _keyHorizontal);
 
 		if (Input.GetKeyDown(_jumpKey) && !(_jumpState))
 		{
@@ -101,18 +100,10 @@ public class PlayerController : MonoBehaviour {
 	#endregion
 
 	#region 캐릭터 이동 관련 함수
-	// 이동 제어
-	private void MovePosition()
-	{
-		//transform.Translate(Vector3.forward * _keyVertical * _moveSpeed * Time.deltaTime);
-		//_rigid.AddForce(transform.rotation * Vector3.forward * _keyVertical * _moveSpeed);
-		//_characterController.Move(Vector3.forward * _keyVertical * _moveSpeed);
-	}
-
 	// 회전 제어
 	private void RotateCharacter()
 	{
-
+	
 	}
 	#endregion
 
