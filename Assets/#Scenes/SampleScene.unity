@@ -523,7 +523,7 @@ GameObject:
   - component: {fileID: 534669906}
   m_Layer: 0
   m_Name: Main Camera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -581,13 +581,13 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 534669902}
-  m_LocalRotation: {x: 0.2588191, y: 0, z: 0, w: 0.9659258}
-  m_LocalPosition: {x: 0, y: 2, z: -1.5}
+  m_LocalRotation: {x: 0.08715578, y: 0, z: 0, w: 0.9961947}
+  m_LocalPosition: {x: 0, y: 2.27, z: -1.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 30, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 10, y: 0, z: 0}
 --- !u!114 &534669906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -603,8 +603,8 @@ MonoBehaviour:
   xRotMax: 30
   rotSpeed: 20
   scrollSpeed: 50
-  distance: 3
-  minDis: 2
+  distance: 2
+  minDis: 1
   maxDis: 7
   xRot: 0
   yRot: 0
@@ -1011,7 +1011,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b10f9b52b9a04934fb6528b77894109e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _camera: {fileID: 534669902}
   _basicMoveSpeed: 2
+  yRot: 0
 --- !u!136 &965227750
 CapsuleCollider:
   m_ObjectHideFlags: 0

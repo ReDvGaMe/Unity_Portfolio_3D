@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour {
 	#region 변수
 	private Rigidbody _rigid;
 	private Animator _anim;
+	public GameObject _camera;
 	// public CharacterController _characterController;
 
 	#region 정보
@@ -36,8 +37,9 @@ public class PlayerController : MonoBehaviour {
 	// 카메라 회전 키
 	private KeyCode _cameraMoveKey = KeyCode.LeftAlt;
 
-	// 마우스
-	private Vector3 _mousePos;
+	[HideInInspector]
+	// 마우스 좌표 저장용
+	public float yRot;
 	#endregion
 
 	#region 상태
@@ -59,20 +61,21 @@ public class PlayerController : MonoBehaviour {
 
 	private void FixedUpdate()
 	{
-		MoveCharacter();
 		RotateCharacter();
+		MoveCharacter();
 	}
 
 	// Update is called once per frame
 	void Update ()
     {
 		InputKey();
-		_mousePos = Input.mousePosition;
+		yRot += Input.GetAxis("Mouse X") * 20 * Time.deltaTime;
 	}
 
 	// 키 입력
-    private void InputKey()
+	private void InputKey()
     {
+		// 방향키 입력을 받아옴
 		_keyVertical = Input.GetAxis("Vertical");
 		_keyHorizontal = Input.GetAxis("Horizontal");
 
@@ -90,25 +93,16 @@ public class PlayerController : MonoBehaviour {
 			_runState = false;
 			_anim.SetBool("_Run", _runState);
 		}
-
 		if (_runState) _moveSpeed = _basicMoveSpeed * 2;
 		else _moveSpeed = _basicMoveSpeed;
 
 		// 방향 키 입력을 애니메이터로 넘김
-		if (Mathf.Abs(_keyVertical) > 0)
-			_anim.SetBool("_MoveVertical", true);
-		else
-			_anim.SetBool("_MoveVertical", false);
 		_anim.SetFloat("_SpeedVertical", _keyVertical);
-		if (Mathf.Abs(_keyHorizontal) > 0)
-			_anim.SetBool("_MoveSide", true);
-		else
-			_anim.SetBool("_MoveSide", false);
 		_anim.SetFloat("_SpeedHorizontal", _keyHorizontal);
 
 		if (Input.GetKeyDown(_jumpKey) && !(_jumpState))
 		{
-			//_rigid.AddForce(Vector3.up * 10f, ForceMode.Impulse);
+			_rigid.AddForce(Vector3.up * 10f, ForceMode.Impulse);
 			_anim.SetTrigger("_Jump");
 		}			
 	}
@@ -118,25 +112,19 @@ public class PlayerController : MonoBehaviour {
 	// 이동 제어
 	private void MoveCharacter()
 	{
-		AnimatorStateInfo animInfo = _anim.GetCurrentAnimatorStateInfo(0);
+		movement.Set(_keyHorizontal, 0, _keyVertical);
+		movement = movement.normalized * _basicMoveSpeed * Time.deltaTime;
 
-		if (!(_anim.GetCurrentAnimatorStateInfo(0).IsName("Idle")))
-		{
-			StartCoroutine("WaitForSec", 0.2f);
-			movement.Set(_keyHorizontal, 0, _keyVertical);
-			movement = movement.normalized * _basicMoveSpeed * Time.deltaTime;
-
-			_rigid.MovePosition(transform.position + movement);
-		}		
+		_rigid.MovePosition(transform.localPosition + movement);
 	}
 	// 회전 제어
 	private void RotateCharacter()
-	{
-	
+	{ 
+		transform.localEulerAngles = new Vector3(0, yRot, 0);
 	}
-	#endregion
+#endregion
 
-	private void OnCollisionStay(Collision collision)
+private void OnCollisionStay(Collision collision)
 	{
 		if(collision.transform.tag == "Ground") // Ground
 		{
