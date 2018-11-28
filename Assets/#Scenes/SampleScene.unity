@@ -1012,7 +1012,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _camera: {fileID: 534669902}
-  _basicMoveSpeed: 2
+  _basicMoveSpeed: 1
   yRot: 0
 --- !u!136 &965227750
 CapsuleCollider:

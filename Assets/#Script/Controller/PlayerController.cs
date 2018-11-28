@@ -76,8 +76,11 @@ public class PlayerController : MonoBehaviour {
 	private void InputKey()
     {
 		// 방향키 입력을 받아옴
-		_keyVertical = Input.GetAxis("Vertical");
-		_keyHorizontal = Input.GetAxis("Horizontal");
+		//_keyVertical = Input.GetAxis("Vertical");
+		//_keyHorizontal = Input.GetAxis("Horizontal");
+		_keyVertical = Mathf.Lerp(_anim.GetFloat("_SpeedVertical"), Input.GetAxis("Vertical"), Time.fixedTime);
+		_keyHorizontal = Mathf.Lerp(_anim.GetFloat("_SpeedHorizontal"), Input.GetAxis("Horizontal"), Time.fixedTime);
+
 
 		// 달리기 키 검사
 		if (Input.GetKey(_runKey))
@@ -99,7 +102,7 @@ public class PlayerController : MonoBehaviour {
 		// 방향 키 입력을 애니메이터로 넘김
 		_anim.SetFloat("_SpeedVertical", _keyVertical);
 		_anim.SetFloat("_SpeedHorizontal", _keyHorizontal);
-
+		
 		if (Input.GetKeyDown(_jumpKey) && !(_jumpState))
 		{
 			_rigid.AddForce(Vector3.up * 10f, ForceMode.Impulse);
