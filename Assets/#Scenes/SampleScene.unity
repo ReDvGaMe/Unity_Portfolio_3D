@@ -990,9 +990,8 @@ GameObject:
   m_Component:
   - component: {fileID: 965227753}
   - component: {fileID: 965227752}
-  - component: {fileID: 965227750}
-  - component: {fileID: 965227751}
   - component: {fileID: 965227749}
+  - component: {fileID: 965227750}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1013,36 +1012,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _camera: {fileID: 534669902}
   _basicMoveSpeed: 1
-  yRot: 0
---- !u!136 &965227750
-CapsuleCollider:
+  _jumpPower: 5
+  _yRot: 0
+--- !u!143 &965227750
+CharacterController:
   m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 136659212625406574, guid: 375f2890eb8db1943b3a7cc7847b66ff,
-    type: 2}
+  m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 965227748}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 1, z: 0}
---- !u!54 &965227751
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 965227748}
   serializedVersion: 2
-  m_Mass: 1.5
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 112
-  m_CollisionDetection: 0
+  m_Height: 2
+  m_Radius: 0.5
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!95 &965227752
 Animator:
   serializedVersion: 3

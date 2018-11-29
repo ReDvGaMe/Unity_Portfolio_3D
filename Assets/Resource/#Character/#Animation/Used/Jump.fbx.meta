@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 0d9d26e2162aa4d11ab075b34c029673
+guid: 3cb41ea1c9a143743a4bd896d28c8970
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
@@ -475,9 +475,9 @@ ModelImporter:
     4300114: l_hipProxy_geo
     7400000: __preview___207_Idle_JumpUpMedium_NoHands1Step_Idle
     7400002: HumanoidIdleJumpUp
-    7400004: HumanoidFall
-    7400006: HumanoidJumpUp
-    7400008: HumanoidMidAir
+    7400004: Fall
+    7400006: JumpUp
+    7400008: MidAir
     9500000: //RootNode
     11100000: //RootNode
   externalObjects: {}
@@ -522,8 +522,8 @@ ModelImporter:
       loopTime: 0
       loopBlend: 0
       loopBlendOrientation: 1
-      loopBlendPositionY: 1
-      loopBlendPositionXZ: 1
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
       keepOriginalOrientation: 0
       keepOriginalPositionY: 1
       keepOriginalPositionXZ: 0
@@ -539,7 +539,7 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 56
     - serializedVersion: 16
-      name: HumanoidFall
+      name: Fall
       takeName: _207_Idle_JumpUpMedium_NoHands1Step_Idle
       firstFrame: 127
       lastFrame: 129
@@ -863,7 +863,7 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: HumanoidJumpUp
+      name: JumpUp
       takeName: _207_Idle_JumpUpMedium_NoHands1Step_Idle
       firstFrame: 125
       lastFrame: 127
@@ -1187,7 +1187,7 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: HumanoidMidAir
+      name: MidAir
       takeName: _207_Idle_JumpUpMedium_NoHands1Step_Idle
       firstFrame: 131
       lastFrame: 133

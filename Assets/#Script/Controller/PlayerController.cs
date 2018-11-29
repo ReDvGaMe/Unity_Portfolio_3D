@@ -4,18 +4,23 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 	#region 변수
-	private Rigidbody _rigid;
+	//private Rigidbody _rigid;
 	private Animator _anim;
+	private CharacterController _cc;
 	public GameObject _camera;
 	// public CharacterController _characterController;
 
 	#region 정보
-	[Tooltip("캐릭터 기본 이동 속도")] [SerializeField] [Range(0f, 5f)]
+	[Tooltip("캐릭터 기본 이동 속도")] [SerializeField] [Range(0f, 10f)]
 	private float _basicMoveSpeed = 10f;
 	// 캐릭터 이동 속도
 	private float _moveSpeed = 10f;
 	// 캐릭터 이동 관련 벡터
-	private Vector3 movement;
+	private Vector3 _movement;
+	[Tooltip("캐릭터 점프 파워")] [SerializeField] [Range(0f, 10f)]
+	private float _jumpPower = 5f;
+	// 캐릭터 점프 속도
+	private float _yVelocity;
 	#endregion
 
 	#region 입력 키
@@ -38,8 +43,8 @@ public class PlayerController : MonoBehaviour {
 	private KeyCode _cameraMoveKey = KeyCode.LeftAlt;
 
 	[HideInInspector]
-	// 마우스 좌표 저장용
-	public float yRot;
+	// 화면 회전용
+	public float _yRot;
 	#endregion
 
 	#region 상태
@@ -54,22 +59,25 @@ public class PlayerController : MonoBehaviour {
 	#region 기본 함수
 	private void Awake()
 	{
-		_rigid = GetComponent<Rigidbody>();
+		//_rigid = GetComponent<Rigidbody>();
 		_anim = transform.GetComponentInChildren<Animator>();
-		// _characterController = gameObject.GetComponent<CharacterController>();
+		_cc = gameObject.GetComponent<CharacterController>();
 	}
 
 	private void FixedUpdate()
 	{
 		RotateCharacter();
 		MoveCharacter();
+		_yVelocity = Physics.gravity.y * Time.deltaTime;
+
+		//_anim.SetFloat("_Velocity_Y", _rigid.velocity.y);
 	}
 
 	// Update is called once per frame
 	void Update ()
     {
 		InputKey();
-		yRot += Input.GetAxis("Mouse X") * 20 * Time.deltaTime;
+		_yRot += Input.GetAxis("Mouse X") * 20 * Time.deltaTime;
 	}
 
 	// 키 입력
@@ -80,8 +88,7 @@ public class PlayerController : MonoBehaviour {
 		//_keyHorizontal = Input.GetAxis("Horizontal");
 		_keyVertical = Mathf.Lerp(_anim.GetFloat("_SpeedVertical"), Input.GetAxis("Vertical"), Time.fixedTime);
 		_keyHorizontal = Mathf.Lerp(_anim.GetFloat("_SpeedHorizontal"), Input.GetAxis("Horizontal"), Time.fixedTime);
-
-
+		
 		// 달리기 키 검사
 		if (Input.GetKey(_runKey))
 		{
@@ -105,8 +112,12 @@ public class PlayerController : MonoBehaviour {
 		
 		if (Input.GetKeyDown(_jumpKey) && !(_jumpState))
 		{
-			_rigid.AddForce(Vector3.up * 10f, ForceMode.Impulse);
-			_anim.SetTrigger("_Jump");
+			_jumpState = true;
+			_anim.SetBool("_Jump", true);
+			StartCoroutine("WaitForSec", 0.25f);
+
+			_yVelocity = _jumpPower;
+			//_rigid.AddForce(Vector3.up * 7f, ForceMode.Impulse);
 		}			
 	}
 	#endregion
@@ -115,35 +126,29 @@ public class PlayerController : MonoBehaviour {
 	// 이동 제어
 	private void MoveCharacter()
 	{
-		movement.Set(_keyHorizontal, 0, _keyVertical);
-		movement = movement.normalized * _basicMoveSpeed * Time.deltaTime;
+		_movement.Set(_keyHorizontal, _yVelocity, _keyVertical);
+		_movement = _movement.normalized * _basicMoveSpeed * Time.deltaTime;
 
-		_rigid.MovePosition(transform.localPosition + movement);
+		transform.Translate(_movement);
 	}
 	// 회전 제어
 	private void RotateCharacter()
-	{ 
-		transform.localEulerAngles = new Vector3(0, yRot, 0);
+	{
+		transform.rotation = Quaternion.Euler(0, _yRot, 0);
 	}
-#endregion
+	#endregion
 
-private void OnCollisionStay(Collision collision)
+	private void OnCollisionStay(Collision collision)
 	{
 		if(collision.transform.tag == "Ground") // Ground
 		{
-			if (_jumpState) _jumpState = false;
-		}
-	}
-
-	private void OnCollisionExit(Collision collision)
-	{
-		if(collision.transform.tag == "Ground") // Ground
-		{
-			if (!_jumpState) _jumpState = true;
+			_jumpState = false;
+			_anim.SetBool("_Jump", false);
 		}
 	}
 
 	#region 코루틴
+	// 타이머
 	private IEnumerator WaitForSec(float time)
 	{
 		while(time > 0)
@@ -152,5 +157,10 @@ private void OnCollisionStay(Collision collision)
 			yield return new WaitForSeconds(0.1f);
 		}
 	}
+
+	//private IEnumerator GetVeolocity()
+	//{
+	//	while(Mathf.Abs(_rigid.velocity.y) != 0)
+	//}
 	#endregion
 }
