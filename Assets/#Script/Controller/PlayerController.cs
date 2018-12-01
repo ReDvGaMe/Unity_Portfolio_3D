@@ -4,11 +4,9 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 	#region 변수
-	//private Rigidbody _rigid;
+	private Rigidbody _rigid;
 	private Animator _anim;
-	private CharacterController _cc;
 	public GameObject _camera;
-	// public CharacterController _characterController;
 
 	#region 정보
 	[Tooltip("캐릭터 기본 이동 속도")] [SerializeField] [Range(0f, 10f)]
@@ -18,9 +16,7 @@ public class PlayerController : MonoBehaviour {
 	// 캐릭터 이동 관련 벡터
 	private Vector3 _movement;
 	[Tooltip("캐릭터 점프 파워")] [SerializeField] [Range(0f, 10f)]
-	private float _jumpPower = 5f;
-	// 캐릭터 점프 속도
-	private float _yVelocity;
+	private float _jumpPower = 1.5f;
 	#endregion
 
 	#region 입력 키
@@ -59,29 +55,25 @@ public class PlayerController : MonoBehaviour {
 	#region 기본 함수
 	private void Awake()
 	{
-		//_rigid = GetComponent<Rigidbody>();
+		_rigid = GetComponent<Rigidbody>();
 		_anim = transform.GetComponentInChildren<Animator>();
-		_cc = gameObject.GetComponent<CharacterController>();
 	}
 
 	private void FixedUpdate()
 	{
 		RotateCharacter();
 		MoveCharacter();
-		_yVelocity = Physics.gravity.y * Time.deltaTime;
+    }
 
-		//_anim.SetFloat("_Velocity_Y", _rigid.velocity.y);
-	}
-
-	// Update is called once per frame
-	void Update ()
+    // Update is called once per frame
+    void Update ()
     {
-		InputKey();
+        InputKey();
 		_yRot += Input.GetAxis("Mouse X") * 20 * Time.deltaTime;
-	}
+    }
 
-	// 키 입력
-	private void InputKey()
+    // 키 입력
+    private void InputKey()
     {
 		// 방향키 입력을 받아옴
 		//_keyVertical = Input.GetAxis("Vertical");
@@ -94,31 +86,27 @@ public class PlayerController : MonoBehaviour {
 		{
 			if (_keyVertical > 0f) _runState = true;
 			else _runState = false;
-
-			_anim.SetBool("_Run", _runState);
-
+            _moveSpeed = _basicMoveSpeed * 2;
+            _anim.SetBool("_Run", _runState);
 		}
 		else if (Input.GetKeyUp(_runKey))
 		{
 			_runState = false;
-			_anim.SetBool("_Run", _runState);
+            _moveSpeed = _basicMoveSpeed;
+            _anim.SetBool("_Run", _runState);
 		}
-		if (_runState) _moveSpeed = _basicMoveSpeed * 2;
-		else _moveSpeed = _basicMoveSpeed;
 
 		// 방향 키 입력을 애니메이터로 넘김
 		_anim.SetFloat("_SpeedVertical", _keyVertical);
 		_anim.SetFloat("_SpeedHorizontal", _keyHorizontal);
-		
-		if (Input.GetKeyDown(_jumpKey) && !(_jumpState))
-		{
-			_jumpState = true;
-			_anim.SetBool("_Jump", true);
-			StartCoroutine("WaitForSec", 0.25f);
 
-			_yVelocity = _jumpPower;
-			//_rigid.AddForce(Vector3.up * 7f, ForceMode.Impulse);
-		}			
+        if (Input.GetKeyDown(_jumpKey) && !(_jumpState))
+        {
+            _jumpState = true;
+            _anim.SetBool("_Jump", true);
+            _rigid.AddForce(Vector3.up * Mathf.Sqrt(_jumpPower * -2f * Physics.gravity.y), ForceMode.VelocityChange);
+            StartCoroutine("JumpAnim");
+        }
 	}
 	#endregion
 
@@ -126,21 +114,28 @@ public class PlayerController : MonoBehaviour {
 	// 이동 제어
 	private void MoveCharacter()
 	{
-		_movement.Set(_keyHorizontal, _yVelocity, _keyVertical);
-		_movement = _movement.normalized * _basicMoveSpeed * Time.deltaTime;
+        _movement.Set(_keyHorizontal, 0, _keyVertical);
 
-		transform.Translate(_movement);
-	}
+        // 뒤로 이동할때는 느리게
+        if (_keyVertical < -0.1f)
+            _moveSpeed = _basicMoveSpeed / 2;
+        else
+            _moveSpeed = _basicMoveSpeed;
+
+        // 이동
+        transform.Translate(_movement.normalized * _moveSpeed * Time.fixedDeltaTime);
+    }
 	// 회전 제어
 	private void RotateCharacter()
 	{
-		transform.rotation = Quaternion.Euler(0, _yRot, 0);
+        // 마우스 움직임에 따라서 캐릭터 회전
+        transform.rotation = Quaternion.Euler(0, _yRot, 0);
 	}
-	#endregion
+    #endregion
 
-	private void OnCollisionStay(Collision collision)
+    private void OnCollisionEnter(Collision collision)
 	{
-		if(collision.transform.tag == "Ground") // Ground
+        if (collision.transform.tag == "Ground")
 		{
 			_jumpState = false;
 			_anim.SetBool("_Jump", false);
@@ -158,9 +153,16 @@ public class PlayerController : MonoBehaviour {
 		}
 	}
 
-	//private IEnumerator GetVeolocity()
-	//{
-	//	while(Mathf.Abs(_rigid.velocity.y) != 0)
-	//}
+    private IEnumerator JumpAnim()
+    {
+        float _animTime = 0;
+        
+        while (_jumpState)
+        {
+            _anim.SetFloat("_JumpAnim", _animTime);
+            _animTime += Time.deltaTime;
+            yield return null;
+        }
+	}
 	#endregion
 }
