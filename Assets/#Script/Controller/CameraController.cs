@@ -38,16 +38,16 @@ public class CameraController : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
 	{
-		// xRot += Input.GetAxis("Mouse Y") * rotSpeed * Time.deltaTime;
+		xRot += Input.GetAxis("Mouse Y") * rotSpeed * Time.deltaTime;
 		yRot += Input.GetAxis("Mouse X") * rotSpeed * Time.deltaTime;
 		// distance += -Input.GetAxis("Mouse ScrollWheel") * scrollSpeed * Time.deltaTime;
 		
-		// xRot = Mathf.Clamp(xRot, -xRotMax, xRotMax);
+		xRot = Mathf.Clamp(xRot, -xRotMax, xRotMax);
 		// distance = Mathf.Clamp(distance, minDis, maxDis);
 
 		playerPos = player.transform.position + Vector3.up * playerY;
 
-		dir = Quaternion.Euler(10, yRot, 0f) * Vector3.forward;
+		dir = Quaternion.Euler(-xRot, yRot, 0f) * Vector3.forward;
 		transform.position = playerPos + (dir * -distance);
 	}
 

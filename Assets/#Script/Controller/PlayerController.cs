@@ -165,4 +165,8 @@ public class PlayerController : MonoBehaviour {
         }
 	}
 	#endregion
+
+	#region 프로퍼티
+	public bool isRunning { get { return _runState; } }
+	#endregion
 }
