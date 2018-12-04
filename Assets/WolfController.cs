@@ -3,56 +3,62 @@ using System.Collections.Generic;
 using UnityEngine.AI;
 using UnityEngine;
 
-public enum wolfState
-{
-	normal,
-	moveObj,
-	findObj
-}
-
-public class WolfController : MonoBehaviour {
-
-	#region 변수
-	GameObject _player;
-	PlayerController _pc;
-	Animator _anim;
-	NavMeshAgent _nav;
-
-	// 늑대 기본 이동속도
-	private float _basicSpeed = 1f;
-	// 늑대가 이동을 멈출 거리
-	private float _stopDis = 2f;
-	// 늑대가 달릴 거리
-	private float _runDis = 5f;
-	#endregion
-
-	private void Awake()
+public class WolfController : CharacterController {
+	// 키 입력
+	protected override void InputKey()
 	{
-		_player = GameObject.FindGameObjectWithTag("Player");
-		_anim = GetComponent<Animator>();
-		_nav = GetComponent<NavMeshAgent>();
+		// 방향키 입력을 받아옴
+		_keyVertical = Input.GetAxis("Vertical");
+		//_keyHorizontal = Input.GetAxis("Horizontal");
+
+		// 달리기 키 검사
+		if (Input.GetKey(_runKey))
+		{
+			if (_keyVertical > 0f) _runState = true;
+			else _runState = false;
+			_moveSpeed = _basicMoveSpeed * 2;
+			_anim.SetBool("_Run", _runState);
+		}
+		else if (Input.GetKeyUp(_runKey))
+		{
+			_runState = false;
+			_moveSpeed = _basicMoveSpeed;
+			_anim.SetBool("_Run", _runState);
+		}
+
+		// 방향 키 입력을 애니메이터로 넘김
+		_anim.SetFloat("_SpeedVertical", _keyVertical);
+		//_anim.SetFloat("_SpeedHorizontal", _keyHorizontal);
+
+		if (Input.GetKeyDown(_jumpKey) && !(_jumpState))
+		{
+			_jumpState = true;
+			_anim.SetBool("_Jump", true);
+			_rigid.AddForce(Vector3.up * Mathf.Sqrt(_jumpPower * -2f * Physics.gravity.y), ForceMode.VelocityChange);
+			StartCoroutine("JumpAnim");
+		}
 	}
 
-	// Use this for initialization
-	void Start ()
+	#region 캐릭터 이동 관련 함수
+	// 이동 제어
+	protected override void MoveCharacter()
 	{
-		_pc = _player.GetComponent<PlayerController>();
-		// 네비 멈추는 거리 설정
-		_nav.stoppingDistance = _stopDis;
-	}
-	
-	// Update is called once per frame
-	void Update ()
-	{
-		// 목표 지정
-		_nav.SetDestination(_player.transform.position);
+		_movement.Set(0, 0, _keyVertical);
 
-		_anim.SetFloat("_Dis", _nav.remainingDistance);
-
-		// 거리에 따라 속도 설정
-		if (_nav.remainingDistance > _runDis)
-			_nav.speed = _basicSpeed * 2.5;
+		// 뒤로 이동할때는 느리게
+		if (_keyVertical < -0.1f)
+			_moveSpeed = _basicMoveSpeed / 2;
 		else
-			_nav.speed = _basicSpeed * 1;
+			_moveSpeed = _basicMoveSpeed;
+
+		// 이동
+		transform.Translate(_movement.normalized * _moveSpeed * Time.fixedDeltaTime);
 	}
+	// 회전 제어
+	protected override void RotateCharacter()
+	{
+		// 마우스 움직임에 따라서 캐릭터 회전
+		transform.rotation = Quaternion.Euler(0, _yRot, 0);
+	}
+	#endregion
 }
