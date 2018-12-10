@@ -3,10 +3,25 @@ using System.Collections.Generic;
 using UnityEngine.AI;
 using UnityEngine;
 
-public enum charState
+public enum operatingState
 {
+	nonAct,
 	playable,
 	ai
+}
+
+public enum behaviorStatus
+{	
+	// 공용
+	walk,
+	run,
+	jump,
+
+	// wolf 전용
+	seat,
+	creep,
+
+	normal
 }
 
 public abstract class CharacterController : MonoBehaviour {
@@ -22,11 +37,14 @@ public abstract class CharacterController : MonoBehaviour {
 
 	#region 정보
 	[SerializeField]
-	protected charState _charState;
+	// 캐릭터 조작 상태
+	protected operatingState _oprStt;
+	// 캐릭터 행동 상태
+	protected behaviorStatus _bhvStt;
 	[Tooltip("캐릭터 기본 이동 속도")] [SerializeField] [Range(0f, 10f)]
-	protected float _basicMoveSpeed = 10f;
+	protected float _basicMoveSpeed = 1f;
 	// 캐릭터 이동 속도
-	protected float _moveSpeed = 10f;
+	protected float _moveSpeed = 1f;
 	// 캐릭터 이동 관련 벡터
 	protected Vector3 _movement;
 	[Tooltip("캐릭터 점프 파워")] [SerializeField] [Range(0f, 10f)]
@@ -68,10 +86,10 @@ public abstract class CharacterController : MonoBehaviour {
 	#endregion
 
 	#region 상태
-	// 달리고있는지 검사할 변수
+	// 캐릭터가 달리고 있는지 저장할 변수
 	protected bool _runState = false;
 
-	// 캐릭터가 공중에 있는지 검사할 변수
+	// 캐릭터가 공중에 있는지 저장할 변수
 	protected bool _jumpState = false;
 	#endregion
 	#endregion
@@ -83,14 +101,25 @@ public abstract class CharacterController : MonoBehaviour {
 		_camera = GetComponentInChildren<Camera>();
 		_nav = GetComponent<NavMeshAgent>();
 
-		if (_charState == charState.playable)
+		// 초기 상태가 플레이어블 상태 일 때
+		if (_oprStt == operatingState.playable)
 		{
 			_anim.SetBool("_AI", false);
+			_nav.enabled = false;
 			_camera.enabled = true;
 		}
-		else if (_charState == charState.ai)
+		// 초기 상태가 ai 일 때
+		else if (_oprStt == operatingState.ai)
 		{
 			_anim.SetBool("_AI", true);
+			_nav.enabled = true;
+			_camera.enabled = false;
+		}
+		// 초기 상태가 활동 불가 상태 일 때
+		else if(_oprStt == operatingState.nonAct)
+		{
+			_anim.SetBool("_AI", false);
+			_nav.enabled = false;
 			_camera.enabled = false;
 		}
 
@@ -125,18 +154,44 @@ public abstract class CharacterController : MonoBehaviour {
 	// 캐릭터 전환 함수
 	protected void ChangeChar()
 	{
-		if (_charState == charState.playable)
+		if (_oprStt == operatingState.playable)
 		{
+			// 이동 상태 초기화
+			_runState = false;
+			_moveSpeed = _basicMoveSpeed;			
+			_jumpState = false;
+
+			// nav 활성화
+			_nav.enabled = true;
 			_nav.isStopped = false;
-			_charState = charState.ai;
+
+			// 키네마틱 활성화
+			_rigid.isKinematic = true;
+
+			// 애니메이션 초기화
+			_anim.SetFloat("_SpeedVertical", 0);
+			_anim.SetFloat("_SpeedHorizontal", 0);
+			_anim.SetBool("_Run", false);
 			_anim.SetBool("_AI", true);
+
+			// 캐릭터 및 카메라 상태 변경
+			_oprStt = operatingState.ai;			
 			_camera.enabled = false;
 		}			
-		else if (_charState == charState.ai)
+		else if (_oprStt == operatingState.ai)
 		{
+			// nav 비활성화
+			_nav.enabled = false;
 			_nav.isStopped = true;
-			_charState = charState.playable;
+
+			// 키네마틱 활성화
+			_rigid.isKinematic = false;
+
+			// 애니메이션 초기화
 			_anim.SetBool("_AI", false);
+
+			// 캐릭터 및 카메라 상태 변경
+			_oprStt = operatingState.playable;			
 			_camera.enabled = true;
 		}			
 	}
@@ -147,6 +202,7 @@ public abstract class CharacterController : MonoBehaviour {
 		// 목표 지정
 		_nav.SetDestination(_target.transform.position);
 
+		// 애니메이터에 전달
 		_anim.SetFloat("_Dis", _nav.remainingDistance);
 
 		// 거리에 따라 속도 설정
@@ -184,6 +240,7 @@ public abstract class CharacterController : MonoBehaviour {
 	
 	#region 프로퍼티
 	public bool isRunning { get { return _runState; } }
+	public operatingState CharState { get { return _oprStt; } }
 	#endregion
 
 	protected abstract void InputKey();

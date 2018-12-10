@@ -4,6 +4,12 @@ using UnityEngine.AI;
 using UnityEngine;
 
 public class WolfController : CharacterController {
+	// 앉기 키
+	private KeyCode _seatKey = KeyCode.LeftControl;
+
+	// 기어다니기 키
+	private KeyCode _creepKey = KeyCode.C;
+
 	// 키 입력
 	protected override void InputKey()
 	{
@@ -16,7 +22,7 @@ public class WolfController : CharacterController {
 		{
 			if (_keyVertical > 0f) _runState = true;
 			else _runState = false;
-			_moveSpeed = _basicMoveSpeed * 2;
+			_moveSpeed = _basicMoveSpeed * 3;
 			_anim.SetBool("_Run", _runState);
 		}
 		else if (Input.GetKeyUp(_runKey))
@@ -26,9 +32,17 @@ public class WolfController : CharacterController {
 			_anim.SetBool("_Run", _runState);
 		}
 
-		// 방향 키 입력을 애니메이터로 넘김
-		_anim.SetFloat("_SpeedVertical", _keyVertical);
+		if (Input.GetKeyDown(_seatKey))
+		{
+			_keyVertical = 0;
+			_anim.SetBool("_Seat", true);
+		}
+
+			// 방향 키 입력을 애니메이터로 넘김
+			_anim.SetFloat("_SpeedVertical", _keyVertical);
 		//_anim.SetFloat("_SpeedHorizontal", _keyHorizontal);
+
+		
 
 		if (Input.GetKeyDown(_jumpKey) && !(_jumpState))
 		{
@@ -48,7 +62,7 @@ public class WolfController : CharacterController {
 		// 뒤로 이동할때는 느리게
 		if (_keyVertical < -0.1f)
 			_moveSpeed = _basicMoveSpeed / 2;
-		else
+		else if (!_runState)
 			_moveSpeed = _basicMoveSpeed;
 
 		// 이동
@@ -61,4 +75,14 @@ public class WolfController : CharacterController {
 		transform.rotation = Quaternion.Euler(0, _yRot, 0);
 	}
 	#endregion
+
+	protected void OnCollisionEnter(Collision collision)
+	{
+		// 바닥 검사
+		if (collision.transform.tag == "Ground")
+		{
+			_jumpState = false;
+			_anim.SetBool("_Jump", false);
+		}
+	}
 }

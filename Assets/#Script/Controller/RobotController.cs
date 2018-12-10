@@ -4,7 +4,6 @@ using UnityEngine.AI;
 using UnityEngine;
 
 public class RobotController : CharacterController {
-
     // 키 입력
     protected override void InputKey()
     {
@@ -30,7 +29,7 @@ public class RobotController : CharacterController {
 		// 방향 키 입력을 애니메이터로 넘김
 		_anim.SetFloat("_SpeedVertical", _keyVertical);
 		_anim.SetFloat("_SpeedHorizontal", _keyHorizontal);
-
+		
         if (Input.GetKeyDown(_jumpKey) && !(_jumpState))
         {
             _jumpState = true;
@@ -49,12 +48,12 @@ public class RobotController : CharacterController {
         // 뒤로 이동할때는 느리게
         if (_keyVertical < -0.1f)
             _moveSpeed = _basicMoveSpeed / 2;
-        else
+        else if(!_runState)
             _moveSpeed = _basicMoveSpeed;
 
-        // 이동
-        transform.Translate(_movement.normalized * _moveSpeed * Time.fixedDeltaTime);
-    }
+		// 이동
+		transform.Translate(_movement.normalized * _moveSpeed * Time.fixedDeltaTime);
+	}
 	// 회전 제어
 	protected override void RotateCharacter()
 	{
@@ -66,7 +65,9 @@ public class RobotController : CharacterController {
 	protected void OnCollisionEnter(Collision collision)
 	{
 		// 바닥 검사
-		if (collision.transform.tag == "Ground") {
+		if (collision.transform.tag == "Ground")
+		{
+			Debug.Log("11");
 			_jumpState = false;
 			_anim.SetBool("_Jump", false);
 		}

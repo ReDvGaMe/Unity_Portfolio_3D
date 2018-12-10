@@ -6,6 +6,8 @@ public class CameraController : MonoBehaviour {
 	#region 변수
 	// 카메라를 붙일 플레이어
 	public GameObject player;
+	// 플레이어 컨트롤러
+	public CharacterController charController;
 	// 플레이어 y포지션이 0일 때 땅을 바라보지 않게 수정할 변수
 	private float playerY = 2f;
 
@@ -35,20 +37,25 @@ public class CameraController : MonoBehaviour {
 	private Vector3 dir;
 	#endregion
 
+	private void Awake()
+	{
+		charController = player.GetComponent<CharacterController>();
+	}
+
 	// Update is called once per frame
 	void Update ()
 	{
 		xRot += Input.GetAxis("Mouse Y") * rotSpeed * Time.deltaTime;
 		yRot += Input.GetAxis("Mouse X") * rotSpeed * Time.deltaTime;
 		// distance += -Input.GetAxis("Mouse ScrollWheel") * scrollSpeed * Time.deltaTime;
-		
+
 		xRot = Mathf.Clamp(xRot, -xRotMax, xRotMax);
 		// distance = Mathf.Clamp(distance, minDis, maxDis);
 
 		playerPos = player.transform.position + Vector3.up * playerY;
 
 		dir = Quaternion.Euler(-xRot, yRot, 0f) * Vector3.forward;
-		transform.position = playerPos + (dir * -distance);
+		transform.position = playerPos + (dir * -distance);		
 	}
 
 	private void LateUpdate()
